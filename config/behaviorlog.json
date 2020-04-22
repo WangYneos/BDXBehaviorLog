@@ -1,0 +1,20 @@
+{
+"LogUseItem" : true,
+"LogChest" : true, 
+"LogPlace" : true,
+"LogDestory" : true,
+"LogCDim" : true,
+"showLogUseItem": true, 
+"showLogChest": true, 
+"showLogBlock": true,
+"showLogCDim": true,    
+"LogFD": true, 
+"LogFH": false,
+"logfile" : "log/BehaviorLog",
+"LogCMD":true,
+"LogJoin":true,
+"LogLeft":true,
+"LogChat":true,
+"logCmdMlock":true,
+"CmdBlockWriteable":true
+}
