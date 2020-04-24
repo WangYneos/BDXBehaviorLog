@@ -37,7 +37,7 @@ inline bool LogLeft;
 inline bool LogChat;
 inline LangPack LP("langpack/behaviorlog.json");
 inline string logfilec = "behaviorlog";
-inline void loadall() {
+inline void loadconf() {
 	ifstream cfile;
 	cfile.open("config/behaviorlog.json");
 	if (cfile)
@@ -155,7 +155,7 @@ inline void fw(const string filen, const string instr) {
 	outfile.close();
 }
 //2x wlog
-inline void wlog(const string time, const string title, const string player, char stand, int dim, const string pos, const string operate, const string target) {
+inline void wlog(const string time, const string title, const string player, const char stand, int dim, const string pos, const string operate, const string target) {
 	string logfile = getfilename();
 	string dims = to_string(dim);
 	string str =
@@ -163,6 +163,20 @@ inline void wlog(const string time, const string title, const string player, cha
 		+ "," + "\"" + title + "\""
 		+ "," + "\"" + player + "\""
 		+ "," + "\"" + (!stand ? u8"A" : "G") + "\""
+		+ "," + "\"" + dims + "\""
+		+ "," + "\"" + pos + "\""
+		+ "," + "\"" + operate + "\""
+		+ "," + "\"" + target + "\"";
+	fw(logfile, str);
+}
+inline void wlog(const string time, const string title, const string player, int dim, const string pos, const string operate, const string target) {
+	string logfile = getfilename();
+	string dims = to_string(dim);
+	string str =
+		"\"" + time + "\""
+		+ "," + "\"" + title + "\""
+		+ "," + "\"" + player + "\""
+		+ "," + "\"" + "" + "\""
 		+ "," + "\"" + dims + "\""
 		+ "," + "\"" + pos + "\""
 		+ "," + "\"" + operate + "\""
@@ -184,31 +198,6 @@ inline void wlog(const string time, const string title, const string player, con
 		+ "," + "\"" + counts + "\""
 		+ "," + "\"" + obj + "\"";
 	fw(logfile, str);
-}
-
-
-inline const string Title(const string titll) {
-	return "[" + gettime() + " " + titll + "][Log]";
-}
-inline const string Coordinator(INT32 coordinator[]) {
-	return string("(") + to_string(coordinator[0]) + ", " + to_string(coordinator[1]) + ", " +
-		to_string(coordinator[2]) + ")";
-}
-
-inline const string Pos(const Vec3 vec) {
-	return "(" + to_string(int(vec.x)) + ", " + to_string(int(vec.y)) + ", " + to_string(int(vec.z)) + ")";
-}
-
-inline auto Dimension(int v) {
-	switch (v) {
-	case 0: return _TRS("Main");
-	case 1: return _TRS("Nether");
-	case 2: return _TRS("End");
-	}
-	return (string)"unknow";
-}
-inline auto posny(INT32 coordinator[]) {
-	return string(to_string(coordinator[0]) + " " + to_string(coordinator[2]));
 }
 
 inline void wlog(const string time, const string title, const string player, const string operate, int dim, const string text) {
@@ -254,73 +243,97 @@ inline void wlog(const string time, const string title, const string player, con
 }
 
 
-inline void lError(const string title, const string& player_name, int dimension,const string& content) {
-	printf(_TR("log.Error"), Title(title).c_str(), player_name.c_str(), Dimension(dimension).c_str(), content.c_str());
+inline const string Title(const string titll) {
+	return "[" + gettime() + " " + titll + "][Log]";
 }
-inline void lBlock(
-	const string title,const string player_name, char isStand, int dimension, const string operation,
-	const string bname, INT32 pos[]) {
-	auto block_name_inner = bname;
-	if (block_name_inner == "") block_name_inner = _TRS("unknow.block");
-	if (showLogBlock)
-		printf(_TR("log.Block"), Title(title).c_str(), player_name.c_str(), (!isStand ? u8"(In Air)" : ""), Dimension(dimension).c_str(), Coordinator(pos).c_str(), operation.c_str(), block_name_inner.c_str());
-	wlog(gettime(), title, player_name, isStand, dimension, Coordinator(pos), operation, block_name_inner);
-}
-inline void lItem(
-	const string title, const string& player_name, char isStand, int dimension, const string& operation,
-	const string& item_name, INT32 coordinator[]) {
-	if (showLogUseItem)
-		printf(_TR("log.Item"), Title(title).c_str(), player_name.c_str(), (!isStand ? u8"(In Air)" : ""), Dimension(dimension).c_str(), Coordinator(coordinator).c_str(), operation.c_str(), item_name.c_str());
-	wlog(gettime(), title, player_name, isStand, dimension, Coordinator(coordinator), operation, item_name);
-}
-inline void lInteraction(
-	const string title, const string& player_name, char isStand, int dimension, const string& operation,
-	const string& object_name, INT32 coordinator[]) {
-	if (showLogChest)
-		printf(_TR("log.Interaction"), Title(title).c_str(), player_name.c_str(), (!isStand ? u8"(In Air)" : ""), operation.c_str(), Dimension(dimension).c_str(), Coordinator(coordinator).c_str(), object_name.c_str());
-	wlog(gettime(), title, player_name, isStand, dimension, Coordinator(coordinator), operation, object_name);
-
-}
-inline void lContainer_In(
-	const string title, const string player_name, int dimension, int slot, int count,
-	const string object_name) {
-	cout << Title(title).c_str() << player_name << slot << count << object_name << endl;
-	if (showLogChest)
-		printf(_TR("log.ContainerIn"), Title(title).c_str(), player_name.c_str(), to_string(slot).c_str(), to_string(count).c_str(), object_name.c_str());
-	wlog(gettime(), title, player_name, "put", dimension, slot, count, object_name);
-}
-inline void lContainer_Out(const string title, const string player_name, int dimension, int slot) {
-	if (showLogChest)
-		printf(_TR("log.ContainerOut"), Title(title).c_str(), player_name.c_str(), to_string(slot).c_str());
-	wlog(gettime(), title, player_name, "get", dimension, slot, -1, "unknow");
+inline const string Coordinator(INT32 coordinator[]) {
+	return string("(") + to_string(coordinator[0]) + ", " + to_string(coordinator[1]) + ", " +
+		to_string(coordinator[2]) + ")";
 }
 
-inline void lChangeDimension(const string title, const string player_name, int dimension, const Vec3 v) {
-	string operate = "changedim";
-	string empty = "";
-	char emptyc = (char)" ";
-	if (showLogCDim)
-		printf(_TR("log.Cdim"), Title(title).c_str(), player_name.c_str(), Dimension(dimension).c_str(), Pos(v).c_str());
-	wlog(gettime(), title, player_name, emptyc, dimension, Pos(v), operate, empty);
+inline const string Pos(const Vec3 vec) {
+	return "(" + to_string(int(vec.x)) + ", " + to_string(int(vec.y)) + ", " + to_string(int(vec.z)) + ")";
 }
 
-inline void lshowDie(const string title, int dim, const Vec3 pos, const string mob_name, const string src_name) {
-	if (showLogDie) 
-		printf(_TR("log.Die"), Title(title).c_str(), mob_name.c_str(), Dimension(dim).c_str(), Pos(pos).c_str(), src_name.c_str());
-	wlog(gettime(), title, mob_name, (char)"", dim, Pos(pos), "killed", src_name);
+inline auto Dimension(int v) {
+	switch (v) {
+	case 0: return _TRS("Main");
+	case 1: return _TRS("Nether");
+	case 2: return _TRS("End");
+	}
+	return (string)"unknow";
 }
-inline void lCmdB(const string title, const string player_name, int dimension, const string content) {
-	printf(_TR("log.CmdBlock"), Title(title).c_str(), player_name.c_str(), Dimension(dimension).c_str(), content.c_str());
+inline auto posny(INT32 coordinator[]) {
+	return string(to_string(coordinator[0]) + " " + to_string(coordinator[2]));
 }
-inline void lcmdbw(string title, const string operate, const string cmd, const string value) {
-	printf(_TR("log.CmdBlockWrite"), Title(title).c_str(), operate.c_str(), cmd.c_str(), value.c_str());
-	wlog(gettime(), title, "", "Write", value, cmd);
-}
-inline void lcmdbm(string title, const string player, Vec3 pos, int dim) {
-	printf(_TR("log.open.cmdblcok.minecrat"), Title(title).c_str(), player.c_str(), Dimension(dim).c_str(), Pos(pos).c_str());
-	wlog(gettime(), title, player, "Open", Pos(pos), "CommandBlock_Minecrat");
-}
-inline void lcmdbb(string title, const string player, const string bpos, int dim) {
-	printf(_TR("log.open.cmdblcok"), Title(title).c_str(), player.c_str(), Dimension(dim).c_str(), bpos.c_str());
-	wlog(gettime(), title, player, "Open", bpos, "CommandBlock");
+
+
+namespace logger {
+	inline void Error(const string title, const string& player_name, int dimension, const string& content) {
+		printf(_TR("log.Error"), Title(title).c_str(), player_name.c_str(), Dimension(dimension).c_str(), content.c_str());
+	}
+	inline void Block(
+		const string title, const string player_name, char isStand, int dimension, const string operation,
+		const string bname, INT32 pos[]) {
+		auto block_name_inner = bname;
+		if (block_name_inner == "") block_name_inner = _TRS("unknow.block");
+		if (showLogBlock)
+			printf(_TR("log.Block"), Title(title).c_str(), player_name.c_str(), (!isStand ? u8"(In Air)" : ""), Dimension(dimension).c_str(), Coordinator(pos).c_str(), operation.c_str(), block_name_inner.c_str());
+		wlog(gettime(), title, player_name, isStand, dimension, Coordinator(pos), operation, block_name_inner);
+	}
+	inline void Item(
+		const string title, const string& player_name, char isStand, int dimension, const string& operation,
+		const string& item_name, INT32 coordinator[]) {
+		if (showLogUseItem)
+			printf(_TR("log.Item"), Title(title).c_str(), player_name.c_str(), (!isStand ? u8"(In Air)" : ""), Dimension(dimension).c_str(), Coordinator(coordinator).c_str(), operation.c_str(), item_name.c_str());
+		wlog(gettime(), title, player_name, isStand, dimension, Coordinator(coordinator), operation, item_name);
+	}
+	inline void Interaction(
+		const string title, const string& player_name, char isStand, int dimension, const string& operation,
+		const string& object_name, INT32 coordinator[]) {
+		if (showLogChest)
+			printf(_TR("log.Interaction"), Title(title).c_str(), player_name.c_str(), (!isStand ? u8"(In Air)" : ""), operation.c_str(), Dimension(dimension).c_str(), Coordinator(coordinator).c_str(), object_name.c_str());
+		wlog(gettime(), title, player_name, isStand, dimension, Coordinator(coordinator), operation, object_name);
+
+	}
+	inline void Container_In(
+		const string title, const string player_name, int dimension, int slot, int count,
+		const string object_name) {
+		cout << Title(title).c_str() << player_name << slot << count << object_name << endl;
+		if (showLogChest)
+			printf(_TR("log.ContainerIn"), Title(title).c_str(), player_name.c_str(), to_string(slot).c_str(), to_string(count).c_str(), object_name.c_str());
+		wlog(gettime(), title, player_name, "put", dimension, slot, count, object_name);
+	}
+	inline void Container_Out(const string title, const string player_name, int dimension, int slot) {
+		if (showLogChest)
+			printf(_TR("log.ContainerOut"), Title(title).c_str(), player_name.c_str(), to_string(slot).c_str());
+		wlog(gettime(), title, player_name, "get", dimension, slot, -1, "unknow");
+	}
+
+	inline void ChangeDimension(const string title, const string player_name, int dimension, const Vec3 v) {
+		if (showLogCDim)
+			printf(_TR("log.Cdim"), Title(title).c_str(), player_name.c_str(), Dimension(dimension).c_str(), Pos(v).c_str());
+		wlog(gettime(), title, player_name, dimension, Pos(v), "changedim", "");
+	}
+
+	inline void showDie(const string title, int dim, const Vec3 pos, const string mob_name, const string src_name) {
+		if (showLogDie)
+			printf(_TR("log.Die"), Title(title).c_str(), mob_name.c_str(), Dimension(dim).c_str(), Pos(pos).c_str(), src_name.c_str());
+		wlog(gettime(), title, mob_name, dim, Pos(pos), "killed", src_name);
+	}
+	inline void CmdB(const string title, const string player_name, int dimension, const string content) {
+		printf(_TR("log.CmdBlock"), Title(title).c_str(), player_name.c_str(), Dimension(dimension).c_str(), content.c_str());
+	}
+	inline void cmdbw(string title, const string operate, const string cmd, const string value) {
+		printf(_TR("log.CmdBlockWrite"), Title(title).c_str(), operate.c_str(), cmd.c_str(), value.c_str());
+		wlog(gettime(), title, "", "Write", value, cmd);
+	}
+	inline void cmdbm(string title, const string player, Vec3 pos, int dim) {
+		printf(_TR("log.open.cmdblcok.minecrat"), Title(title).c_str(), player.c_str(), Dimension(dim).c_str(), Pos(pos).c_str());
+		wlog(gettime(), title, player, "Open", Pos(pos), "CommandBlock_Minecrat");
+	}
+	inline void cmdbb(string title, const string player, const string bpos, int dim) {
+		printf(_TR("log.open.cmdblcok"), Title(title).c_str(), player.c_str(), Dimension(dim).c_str(), bpos.c_str());
+		wlog(gettime(), title, player, "Open", bpos, "CommandBlock");
+	}
 }

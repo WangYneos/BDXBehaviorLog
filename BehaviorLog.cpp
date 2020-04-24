@@ -44,7 +44,7 @@ THook(
 	if (mode) {
 		if (LogUseItem) {
 			if (vaule) {
-				lItem("Operate", sp->getNameTag(), sp->isStand(), sp->getDimension(), _TRS("word.operate"), mstr, blkpos.getPosition());
+				logger::Item("Operate", sp->getNameTag(), sp->isStand(), sp->getDimension(), _TRS("word.operate"), mstr, blkpos.getPosition());
 			}
 		}
 	}
@@ -63,7 +63,7 @@ THook(bool, "?_destroyBlockInternal@GameMode@@AEAA_NAEBVBlockPos@@E@Z", void* _t
 		if (vaule) {
 			if (bname.find("minecraft:") != string::npos)
 				bname = bname.replace(bname.find("minecraft:"), 10, "");
-			lBlock("Destroy", sp->getNameTag().c_str(), sp->isStand(), sp->getDimension(), _TRS("word.destroyed"), bname, blkpos.getPosition());
+			logger::Block("Destroy", sp->getNameTag().c_str(), sp->isStand(), sp->getDimension(), _TRS("word.destroyed"), bname, blkpos.getPosition());
 		}
 	}
 	return vaule;
@@ -80,7 +80,7 @@ THook(
 		string bname = blk->getLegacyBlock().getFullName();
 		if (bname.find("minecraft:") != string::npos)
 			bname = bname.replace(bname.find("minecraft:"), 10, "");
-		lBlock(
+		logger::Block(
 			"Place", sp->getNameTag().c_str(), sp->isStand(), sp->getDimension(), _TRS("word.placed"),
 			bname, blkpos->getPosition());
 	}
@@ -91,7 +91,7 @@ THook(void, "?startOpen@ChestBlockActor@@UEAAXAEAVPlayer@@@Z", void* _this, Play
 	auto real_this = reinterpret_cast<void*>(reinterpret_cast<unsigned long long>(_this) - 248);
 	auto blkpos = reinterpret_cast<BlockActor*>(real_this)->getPosition();
 	if (LogChest) {
-		lInteraction(
+		logger::Interaction(
 			"Chest", sp->getNameTag().c_str(), sp->isStand(), sp->getDimension(), _TRS("word.open"), _TRS("word.chest"),
 			blkpos->getPosition());
 		//std::printf("onopenchest\n");
@@ -104,7 +104,7 @@ THook(__int64, "?stopOpen@ChestBlockActor@@UEAAXAEAVPlayer@@@Z", void* _this, Pl
 	auto real_this = reinterpret_cast<void*>(reinterpret_cast<unsigned long long>(_this) - 248);
 	auto blkpos = reinterpret_cast<BlockActor*>(real_this)->getPosition();
 	if (LogChest) {
-		lInteraction(
+		logger::Interaction(
 			"Chest", sp->getNameTag().c_str(), sp->isStand(), sp->getDimension(), _TRS("word.close"), _TRS("word.chest"),
 			blkpos->getPosition());
 		//std::printf("oncchest\n");
@@ -118,7 +118,7 @@ THook(void, "?startOpen@BarrelBlockActor@@UEAAXAEAVPlayer@@@Z", void* _this, Pla
 	auto real_this = reinterpret_cast<void*>(reinterpret_cast<unsigned long long>(_this) - 248);
 	auto blkpos = reinterpret_cast<BlockActor*>(real_this)->getPosition();
 	if (LogChest) {
-		lInteraction(
+		logger::Interaction(
 			"Barrel", sp->getNameTag().c_str(), sp->isStand(), sp->getDimension(), _TRS("word.open"), _TRS("word.barrel"),
 			blkpos->getPosition());
 		mode = false;
@@ -130,7 +130,7 @@ THook(__int64, "?stopOpen@BarrelBlockActor@@UEAAXAEAVPlayer@@@Z", void* _this, P
 	auto real_this = reinterpret_cast<void*>(reinterpret_cast<unsigned long long>(_this) - 248);
 	auto blkpos = reinterpret_cast<BlockActor*>(real_this)->getPosition();
 	if (LogChest) {
-		lInteraction(
+		logger::Interaction(
 			"Barrel", sp->getNameTag().c_str(), sp->isStand(), sp->getDimension(), _TRS("word.close"), _TRS("word.barrel"),
 			blkpos->getPosition());
 	}
@@ -143,7 +143,7 @@ THook(void, "?startOpen@DispenserBlockActor@@UEAAXAEAVPlayer@@@Z", void* _this, 
 	auto real_this = reinterpret_cast<void*>(reinterpret_cast<unsigned long long>(_this) - 248);
 	auto blkpos = reinterpret_cast<BlockActor*>(real_this)->getPosition();
 	if (LogChest) {
-		lInteraction(
+		logger::Interaction(
 			"Dispenser", sp->getNameTag().c_str(), sp->isStand(), sp->getDimension(), _TRS("word.open"), _TRS("word.dispenser"),
 			blkpos->getPosition());
 		mode = false;
@@ -156,7 +156,7 @@ THook(void, "?startOpen@FurnaceBlockActor@@UEAAXAEAVPlayer@@@Z", void* _this, Pl
 	auto real_this = reinterpret_cast<void*>(reinterpret_cast<unsigned long long>(_this) - 248);
 	auto blkpos = reinterpret_cast<BlockActor*>(real_this)->getPosition();
 	if (LogChest) {
-		lInteraction(
+		logger::Interaction(
 			"Furnace", sp->getNameTag().c_str(), sp->isStand(), sp->getDimension(), _TRS("word.open"), _TRS("word.furnace"),
 			blkpos->getPosition());
 		mode = false;
@@ -176,15 +176,15 @@ THook(
 		if (id >= 0) {
 			std::string object_name = pItemStack->getName();
 			if (size == 0) {
-				lContainer_Out("Chest", sp->getNameTag().c_str(), sp->getDimension(), slot);
+				logger::Container_Out("Chest", sp->getNameTag().c_str(), sp->getDimension(), slot);
 			}
 			else
-				lContainer_In(
+				logger::Container_In(
 					"Chest", sp->getNameTag().c_str(), sp->getDimension(), slot, size, object_name);
 			//std::printf("on put");
 		}
 		else
-			lError("Warning", sp->getNameTag().c_str(), sp->getDimension(), _TRS("unknow.block"));
+			logger::Error("Warning", sp->getNameTag().c_str(), sp->getDimension(), _TRS("unknow.block"));
 		//std::printf("on put ?");
 	}
 	original(_this, slot, itemst);
@@ -197,7 +197,7 @@ THook(
 	bool vaule = original(_this, sp, req);
 	if (LogCDim) {
 		if (vaule)
-			lChangeDimension("Dimension", sp->getNameTag().c_str(), sp->getDimension(), sp->getPos());
+			logger::ChangeDimension("Dimension", sp->getNameTag().c_str(), sp->getDimension(), sp->getPos());
 		//std::printf("onchangedim\n");
 	}
 
@@ -205,5 +205,5 @@ THook(
 
 }
 void bh_ownapi_entery(){
-	loadall();
+	loadconf();
 }

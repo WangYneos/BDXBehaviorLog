@@ -39,21 +39,19 @@ THook(void, "?_setCommand@BaseCommandBlock@@AEAAXAEAVBlockSource@@AEBVCommandOri
 	if (CmdBlockWriteable)
 		original(_this, a1, a2, a3);
 	if (logCmdMlock)
-		lcmdbw("WriteCommandBlock",_TRS("word.writecmdblock"), a3, CmdBlockWriteable ? _TRS("word.success") : _TRS("word.denied"));
+		logger::cmdbw("WriteCommandBlock",_TRS("word.writecmdblock"), a3, CmdBlockWriteable ? _TRS("word.success") : _TRS("word.denied"));
 }
 
 THook(void, "?openCommandBlockMinecart@ServerPlayer@@UEAAXAEBUActorUniqueID@@@Z",
 	Player* _this, struct ActorUniqueID *a1) {
-	//auto v1 = *((__int64*)(_this + 816));
 	Actor* Minecrat = LocateS<ServerLevel>()->fetchEntity(*a1, false);
-	//auto Minecrat = SymCall("?fetchEntity@Level@@QEBAPEAVActor@@UActorUniqueID@@_N@Z", Actor*, long long, ActorUniqueID, int)(v1, *a1, 0);
 	original(_this, a1);
-	if (logCmdMlock)lcmdbm("OpenCommandBlock", _this->getNameTag(), Minecrat->getPos(),Minecrat->getDimensionId());
+	if (logCmdMlock)logger::cmdbm("OpenCommandBlock", _this->getNameTag(), Minecrat->getPos(),Minecrat->getDimensionId());
 	mode = false;
 }
 THook(void, "?openCommandBlock@ServerPlayer@@UEAAXAEBVBlockPos@@@Z",
 	Player* _this, const BlockPos* a1) {
-	if (logCmdMlock)lcmdbb("OpenCommandBlock", _this->getNameTag(), ("(" + to_string(a1->x) + ", " + to_string(a1->y) + ", " + to_string(a1->z) + ")"),_this->getDimensionId());
+	if (logCmdMlock)logger::cmdbb("OpenCommandBlock", _this->getNameTag(), ("(" + to_string(a1->x) + ", " + to_string(a1->y) + ", " + to_string(a1->z) + ")"),_this->getDimensionId());
 	original(_this, a1);
 	mode = false;
 }
@@ -99,9 +97,10 @@ THook(void,
 			}
 			src_name = "unknow";
 		}
-		lshowDie("DeathInfo", _this->getDimensionId(), _this->getPos(), src_name, mob_name);	}
+		logger::showDie("DeathInfo", _this->getDimensionId(), _this->getPos(), src_name, mob_name);	}
 	original(_this, a2);
 }
+
 void Chat() {
 	addListener([](PlayerChatEvent& event) {
 		wlog(gettime(), (string)"Chat", event.getPlayer().getName(), (string)"text", event.getPlayer().getDimID(), event.getChat());
@@ -134,6 +133,7 @@ void reg() {
 		Chat();
 }
 void bh_bdxapi_entery() {
-	reg();
-	loadall();
+	thread listener_thread(reg);
+	listener_thread.detach();
+	loadconf();
 }
