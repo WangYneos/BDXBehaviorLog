@@ -10,6 +10,8 @@
 #include<api\types\helper.h>
 #include<sstream>
 #include "behavior.h"
+#include <api/serviceLocate.h>
+
 extern LangPack LP;
 using namespace std;
 extern bool mode;
@@ -36,9 +38,9 @@ extern std::string logfilec;
 //use item
 THook(
 	bool, "?useItemOn@GameMode@@UEAA_NAEAVItemStack@@AEBVBlockPos@@EAEBVVec3@@PEBVBlock@@@Z", void* _this,
-	ItemStack& item, BlockPos const& blkpos, unsigned char a4, Vec3 const& v5, Block const* blk)
-{
+	ItemStack& item, BlockPos const& blkpos, unsigned char a4, Vec3 const& v5, Block const* blk){
 	auto sp = *reinterpret_cast<Player**>(reinterpret_cast<unsigned long long>(_this) + 8);
+	//Player* sp = LocateS<Player*>();
 	std::string mstr = item.getName();
 	bool vaule = original(_this, item, blkpos, a4, v5, blk);
 	if (mode) {

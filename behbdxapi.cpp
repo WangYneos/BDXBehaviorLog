@@ -118,7 +118,7 @@ void Left() {
 }
 void CMD() {
 	addListener([](PlayerCMDEvent& event) {
-		wlog(gettime(), (string)"CMD", event.getPlayer().getName(), (string)"text", event.getPlayer().getDimID(), event.getCMD());
+		wlog(gettime(), (string)"CMD", event.getPlayer().getName(), (string)"text", event.getPlayer().getDimID(), string(event.getCMD()));
 	});
 }
 

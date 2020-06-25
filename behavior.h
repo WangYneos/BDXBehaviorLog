@@ -9,6 +9,7 @@
 #include <fstream>
 #include <future>
 #include <stl/langpack.h>
+#include "csvwriter.h"
 using namespace std;
 inline bool mode = false;
 typedef signed int          INT32, * PINT32;
@@ -154,92 +155,101 @@ inline void fw(const string filen, const string instr) {
 	outfile << instr << endl;
 	outfile.close();
 }
-//2x wlog
 inline void wlog(const string time, const string title, const string player, const char stand, int dim, const string pos, const string operate, const string target) {
 	string logfile = getfilename();
 	string dims = to_string(dim);
-	string str =
-		"\"" + time + "\""
-		+ "," + "\"" + title + "\""
-		+ "," + "\"" + player + "\""
-		+ "," + "\"" + (!stand ? u8"A" : "G") + "\""
-		+ "," + "\"" + dims + "\""
-		+ "," + "\"" + pos + "\""
-		+ "," + "\"" + operate + "\""
-		+ "," + "\"" + target + "\"";
-	fw(logfile, str);
+	string inair = (!stand ? u8"A" : "G");
+	CSVWriter csv(",");
+	csv.addLine()
+		<< time
+		<< title
+		<< player
+		<< inair
+		<< dims
+		<< pos
+		<< operate
+		<< target;
+
+	//string str = strings.str();
+	fw(logfile, csv.getstr());
 }
 inline void wlog(const string time, const string title, const string player, int dim, const string pos, const string operate, const string target) {
 	string logfile = getfilename();
 	string dims = to_string(dim);
-	string str =
-		"\"" + time + "\""
-		+ "," + "\"" + title + "\""
-		+ "," + "\"" + player + "\""
-		+ "," + "\"" + "" + "\""
-		+ "," + "\"" + dims + "\""
-		+ "," + "\"" + pos + "\""
-		+ "," + "\"" + operate + "\""
-		+ "," + "\"" + target + "\"";
-	fw(logfile, str);
+
+	CSVWriter csv(",");
+	csv.addLine()
+		<< time
+		<< title
+		<< player
+		<< "" 
+		<< dims
+		<< pos
+		<< operate
+		<< target;
+	fw(logfile, csv.getstr());
 }
+
 inline void wlog(const string time, const string title, const string player, const string operate, int dim, int slot, int count, const string obj) {
 	string logfile = getfilename();
 	string dims = to_string(dim);
 	string counts = to_string(count);
 	string slots = to_string(slot);
-	string str =
-		"\"" + time + "\""
-		+ "," + "\"" + title + "\""
-		+ "," + "\"" + player + "\""
-		+ "," + "\"" + operate + "\""
-		+ "," + "\"" + dims + "\""
-		+ "," + "\"" + slots + "\""
-		+ "," + "\"" + counts + "\""
-		+ "," + "\"" + obj + "\"";
-	fw(logfile, str);
+	CSVWriter csv(",");
+	csv.addLine() << time
+		<< title
+		<< player
+		<< operate
+		<< dims
+		<< slots
+		<< counts
+		<< obj;
+
+	fw(logfile, csv.getstr());
 }
 
 inline void wlog(const string time, const string title, const string player, const string operate, int dim, const string text) {
 	string logfile = getfilename();
 	string dims = to_string(dim);
-	string str =
-		"\"" + time + "\""
-		+ "," + "\"" + title + "\""
-		+ "," + "\"" + player + "\""
-		+ "," + "\"" + operate + "\""
-		+ "," + "\"" + dims + "\""
-		+ "," + "\"" + "" + "\""
-		+ "," + "\"" + "" + "\""
-		+ "," + "\"" + text + "\"";
-	fw(logfile, str);
+	CSVWriter csv(",");
+	csv.addLine() << time
+		<< title
+		<< player
+		<< operate
+		<< dims
+		<< ""
+		<< ""
+		<< text;
+
+	fw(logfile, csv.getstr());
 }
 inline void wlog(const string time, const string title, const string player, int dim, const string ip, const string xuid) {
 	string logfile = getfilename();
 	string dims = to_string(dim);
-	string str =
-		"\"" + time + "\""
-		+ "," + "\"" + title + "\""
-		+ "," + "\"" + player + "\""
-		+ "," + "\"" + dims + "\""
-		+ "," + "\"" + "IP" + "\""
-		+ "," + "\"" + ip + "\""
-		+ "," + "\"" + "xuid" + "\""
-		+ "," + "\"" + xuid + "\"";
-	fw(logfile, str);
+	CSVWriter csv(",");
+	csv.addLine()
+		<< time
+		<< title
+		<< player
+		<< dims
+		<< "IP"
+		<< ip
+		<< "xuid"
+		<< xuid;
+	fw(logfile, csv.getstr());
 }
 inline void wlog(const string time, const string title, const string player, const string operate, const string pos, const string text) {
 	string logfile = getfilename();
-	string str =
-		"\"" + time + "\""
-		+ "," + "\"" + title + "\""
-		+ "," + "\"" + player + "\""
-		+ "," + "\"" + "U" + "\""
-		+ "," + "\"" + "IP" + "\""
-		+ "," + "\"" + operate + "\""
-		+ "," + "\"" + pos + "\""
-		+ "," + "\"" + text + "\"";
-	fw(logfile, str);
+	CSVWriter csv(",");
+	csv.addLine() << time
+		<< title
+		<< player
+		<< "U"
+		<< "IP"
+		<< operate
+		<< pos
+		<< text;
+	fw(logfile, csv.getstr());
 }
 
 
